@@ -75,4 +75,10 @@ const (
 
 	// JSON_UNMARSHAL_ERR JSON decoding json.Unmarshal() error
 	JSON_UNMARSHAL_ERR
+
+	//Audio Encoding buffer error
+	AUDIO_ENCODING_BUFFER_ERR
+
+	//Audio Encoding file error
+	AUDIO_ENCODING_FILE_ERR
 )
