@@ -1,9 +1,9 @@
 package voiceExtension
 
-//#cgo CFLAGS: -I/home/dev/go/src/voice-api-server/voiceGoBridge
+//#cgo CFLAGS: -I/mnt/dev/gopath/src/voice-api-server/voiceGoBridge
 //#cgo LDFLAGS: -L/usr/lib/x86_64-linux-gnu -lswresample -lavformat -lavcodec -lavutil -lVoiceGoBridge
 //#include <stdlib.h>
-//#include "/home/dev/go/src/voice-api-server/voiceGoBridge/voiceGoBridge.h"
+//#include "/mnt/dev/gopath/src/voice-api-server/voiceGoBridge/voiceGoBridge.h"
 import "C"
 
 import (
@@ -11,6 +11,7 @@ import (
 	"log"
 	"unsafe"
 	"voice-api-server/common"
+	"voice-api-server/logger"
 
 	"github.com/takuyaohashi/go-wav"
 )
@@ -32,9 +33,9 @@ func C2GoLog(context C.int, funcName *C.char, logText *C.char) {
 	gLogText := C.GoString(logText)
 	gSttCtx := voiceChannelMap[gCtx]
 	if gSttCtx != nil {
-		log.Println("[I] (", gSttCtx.Session.TransactionId, ") < C-Function::"+gFuncName, "> Msg:", gLogText)
+		logger.LogI(gSttCtx.Session.TransactionId, gFuncName, gLogText)
 	} else {
-		log.Println("[I] ( UNDEFINED ) < C-Function::"+gFuncName, "> Msg:", gLogText)
+		logger.LogI(common.UNDEFINED, gFuncName, gLogText)
 	}
 }
 
