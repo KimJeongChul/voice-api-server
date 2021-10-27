@@ -18,7 +18,7 @@ func main() {
 	logger.Startup()
 
 	// Parse arguments
-	configFilePath := flag.String("c", "/home/dev/go/src/voice-api-server/serverConfig.json", "Set server config file")
+	configFilePath := flag.String("c", "/mnt/dev/gopath/src/voice-api-server/serverConfig.json", "Set server config file")
 	flag.Parse()
 
 	// Load server configuaration file
