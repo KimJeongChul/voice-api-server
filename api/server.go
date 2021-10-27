@@ -24,6 +24,10 @@ func (as *ApiServer) Initialize(configJson *utils.ServerConfigJson, rlogger *rot
 	// Router
 	as.router = mux.NewRouter()
 
+	// STT
+	as.router.HandleFunc("/v1/speech", as.handleSpeech)
+	as.router.HandleFunc("/v1/synthesis", as.handleSynthesis)
+
 	return 0
 }
 
