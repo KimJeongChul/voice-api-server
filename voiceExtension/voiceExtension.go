@@ -8,7 +8,6 @@ import "C"
 
 import (
 	"bytes"
-	"log"
 	"unsafe"
 	"voice-api-server/common"
 	"voice-api-server/logger"
@@ -49,6 +48,20 @@ func GetPcmFromEncoded(inBuffer []byte, inOutBuffer []byte) (string, int) {
 	cOutBuffer := (*C.char)(unsafe.Pointer(&inOutBuffer[0]))
 	gRet := int(C.decodeToPcmBuffer(cInBuffer, cInBufferLength, cOutBuffer, cOutBufferLength, cReturnCodec))
 	gReturnCodec = C.GoString(cReturnCodec)
+	C.free(unsafe.Pointer(cReturnCodec))
+	return gReturnCodec, gRet
+}
+
+// GetPcmFromM4aFile Decoding m4a or aac file to pcm
+func GetPcmFromM4aFile(targetFileName string, inOutBuffer []byte) (string, int) {
+	gReturnCodec := "pcm"
+	cReturnCodec := C.CString(gReturnCodec)
+	cOutBufferLength := C.int(len(inOutBuffer))
+	cOutBuffer := (*C.char)(unsafe.Pointer(&inOutBuffer[0]))
+	cTargetFile := C.CString(targetFileName)
+	gRet := int(C.decodeToPcmM4aFile(cTargetFile, cOutBuffer, cOutBufferLength, cReturnCodec))
+	gReturnCodec = C.GoString(cReturnCodec)
+	C.free(unsafe.Pointer(cTargetFile))
 	C.free(unsafe.Pointer(cReturnCodec))
 	return gReturnCodec, gRet
 }
