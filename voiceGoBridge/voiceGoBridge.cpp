@@ -11,7 +11,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#include "/home/dev/go/src/voice-api-server/_obj/_cgo_export.h"
+#include "/mnt/dev/gopath/src/voice-api-server/_obj/_cgo_export.h"
 #include <unistd.h>
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
@@ -157,10 +157,12 @@ int decodeToPcmBuffer(char *buffer, int bufferSize,char* targetBuffer,int target
 
     // Record codec info 
     memcpy(outCodec,avcodec_get_name(cdc->id),3);
-    
-    std::cout<<"Auidio Codec: "<<avcodec_get_name(cdc->id)<<std::endl;
-    std::cout<<"Auidio sample format: "<<codecContext->sample_fmt<<std::endl;
-    std::cout<<"Auidio sample rate : "<<codecContext->sample_rate<<std::endl;
+
+    std::string sr = std::to_string(codecContext->sample_rate);
+    char const *s_rate = sr.c_str();
+
+    Log(inCtx, "decodeToPcmBuffer", avcodec_get_name(cdc->id));
+    Log(inCtx, "decodeToPcmBuffer", s_rate);
 
     //Prepare Resampler
     swr_ctx = swr_alloc_set_opts(NULL,
@@ -247,9 +249,6 @@ int decodeToPcmBuffer(char *buffer, int bufferSize,char* targetBuffer,int target
                             frame->nb_samples
                     );
 
-                    std::string logStr="";
-                    logStr=logStr+"Resampled dst_linesize:"+std::to_string(dst_linesize)+" ret :"+std::to_string(ret);
-                    Log(inCtx, "decodeToPcmBuffer swr_convert:", logStr.c_str());
                     dst_bufsize = av_samples_get_buffer_size(&dst_linesize, 1, ret, AV_SAMPLE_FMT_S16, 1);
 
                     if(dst_bufsize>0) {
