@@ -293,6 +293,180 @@ int decodeToPcmBuffer(char *buffer, int bufferSize,char* targetBuffer,int target
     return rc;
 }
 
+// decodeToPcmM4aFile Decoding m4a or aac file to pcm
+int decodeToPcmM4aFile(char *saveFilePath, char* targetBuffer,int targetBufferSize,char* outCodec) {
+    int inCtx=-1;
+    int rc = 0;
+    int data_size;
+    struct SwrContext *swr_ctx;
+
+    av_register_all();
+    AVFrame *frame = av_frame_alloc();
+    if (!frame) {
+        Log(inCtx, "decodeToPcmBuffer", "AVFrame Allocation Error");
+        return -2;
+    }
+
+    AVFormatContext *formatContext = NULL;
+    if (!(formatContext = avformat_alloc_context())) {
+        Log(inCtx, "decodeToPcmBuffer", "AVFormatContext Allocation Error");
+        av_free(frame);
+        return -3;
+    }
+
+    // Open AVContext
+    if (avformat_open_input(&formatContext, saveFilePath, NULL, NULL) != 0) {
+        Log(inCtx, "decodeToPcmBuffer", "avformat open input Error");
+        av_free(frame);
+        if (formatContext!=NULL) av_freep(formatContext);
+        return -6;
+    }
+
+    // Find Stream Info
+    if (avformat_find_stream_info(formatContext, NULL) < 0) {
+        Log(inCtx, "decodeToPcmBuffer", "avformat find stream info Error");
+        av_free(frame);
+        if (formatContext!=NULL) av_freep(formatContext);
+        return -7;
+    }
+
+    AVCodec *cdc = nullptr;
+    int streamIndex = av_find_best_stream(formatContext, AVMEDIA_TYPE_AUDIO, -1, -1, &cdc, 0);
+    if (streamIndex < 0) {
+        Log(inCtx, "decodeToPcmBuffer", "find audio stream info Error");
+        avformat_close_input(&formatContext);
+        av_free(frame);
+        if (formatContext!=NULL) av_freep(formatContext);
+        return -8;
+    }
+    AVStream *audioStream = formatContext->streams[streamIndex];
+    AVCodecContext *codecContext = audioStream->codec;
+    codecContext->codec = cdc;
+
+    //Open Codec
+    if (avcodec_open2(codecContext, codecContext->codec, NULL) != 0) {
+        Log(inCtx, "decodeToPcmBuffer", "avcodec open 2 Error");
+        avformat_close_input(&formatContext);
+        av_free(frame);
+        if (formatContext!=NULL) av_freep(formatContext);
+        return -9;
+    }
+
+    memcpy(outCodec,avcodec_get_name(cdc->id),3);
+
+    swr_ctx = swr_alloc_set_opts(NULL,
+                                 AV_CH_LAYOUT_MONO,
+                                 AV_SAMPLE_FMT_S16,
+                                 16000,
+                                 codecContext->channel_layout,
+                                 codecContext->sample_fmt,
+                                 codecContext->sample_rate,
+                                 0,
+                                 NULL
+    );
+
+    if (!swr_ctx) {
+        Log(inCtx, "decodeToPcmBuffer", "swr allocation Error");
+        avformat_close_input(&formatContext);
+        av_free(frame);
+        if (formatContext!=NULL) av_freep(formatContext);
+        return -10;
+    }
+
+    if (swr_init(swr_ctx) < 0) {
+        Log(inCtx, "decodeToPcmBuffer", "swr init Error");
+        av_freep(swr_ctx);
+        avformat_close_input(&formatContext);
+        av_free(frame);
+        if (formatContext!=NULL) av_freep(formatContext);
+        return -11;
+    }
+
+    AVPacket readingPacket;
+    av_init_packet(&readingPacket);
+
+    //Read Packet
+    bool loopFlag=true;
+    while (av_read_frame(formatContext, &readingPacket) == 0 && loopFlag) {
+        if (readingPacket.stream_index == audioStream->index) {
+            AVPacket decodingPacket = readingPacket;
+            int dst_bufsize;
+            uint8_t **dst_data = NULL;
+            while (decodingPacket.size > 0) {
+                int gotFrame = 0;
+                int result = avcodec_decode_audio4(codecContext, frame, &gotFrame, &decodingPacket);
+
+                      
+                if (result >= 0 && gotFrame) {
+                    decodingPacket.size -= result;
+                    decodingPacket.data += result;
+                    data_size = av_get_bytes_per_sample(codecContext->sample_fmt);
+                    int ret;
+                    int dst_linesize;
+
+                    //예상되는 out_num_sample을 계산
+                    int out_num_samples = av_rescale_rnd(
+                            swr_get_delay(swr_ctx, codecContext->sample_rate) + frame->nb_samples,
+                            16000,
+                            codecContext->sample_rate,
+                            AV_ROUND_UP
+                    );
+
+                    ret = av_samples_alloc_array_and_samples(
+                            &dst_data,
+                            &dst_linesize,
+                            1,
+                            out_num_samples,
+                            AV_SAMPLE_FMT_S16,
+                            0
+                    );
+
+                    ret = swr_convert(
+                            swr_ctx,
+                            dst_data,
+                            out_num_samples,
+                            (const uint8_t **) &frame->data[0],
+                            frame->nb_samples
+                    );
+
+                    dst_bufsize = av_samples_get_buffer_size(&dst_linesize, 1, ret, AV_SAMPLE_FMT_S16, 1);
+
+                    if(dst_bufsize>0) {
+                        if ((rc + dst_bufsize) <= targetBufferSize) {
+                            memcpy(targetBuffer + rc, (char *) dst_data[0], dst_bufsize);
+                            rc = rc + dst_bufsize;
+                        } else {
+                            loopFlag = false;
+                        }
+                    } else {
+                        char errs[AV_ERROR_MAX_STRING_SIZE+20];
+                        av_make_error_string(errs, AV_ERROR_MAX_STRING_SIZE, dst_bufsize);
+                        Log(inCtx, "decodeToPcmBuffer", errs);
+                        //loopFlag=false;
+                    }
+                } else {
+                    decodingPacket.size = 0;
+                    decodingPacket.data = nullptr;
+                }
+            }
+        } 
+        av_free_packet(&readingPacket);
+    }
+    if (codecContext->codec->capabilities & CODEC_CAP_DELAY) {
+        av_init_packet(&readingPacket);
+        int gotFrame = 0;
+    }
+    
+
+    cleanUp:
+    Log(inCtx, "decodeToPcmBuffer", "CleanUp AV-Related Objs.");
+    swr_free(&swr_ctx);
+    av_free(frame);
+    avcodec_close(codecContext);
+    avformat_close_input(&formatContext);
+    return rc;
+}
+
 // resampleToPcmBuffer Resample pcm
 int resampleToPcmBuffer(int src_ch_layout,int src_rate,int src_sample_fmt,char *buffer, int bufferSize,char* targetBuffer,int targetBufferSize){
     int ret;

@@ -7,6 +7,7 @@ extern "C" {
 #endif
 
 int decodeToPcmBuffer(char *buffer, int bufferSize,char* targetBuffer,int targetBufferSize,char* outCodec);
+int decodeToPcmM4aFile(char *saveFilePath, char* targetBuffer,int targetBufferSize,char* outCodec);
 
 int resampleToPcmBuffer(int src_ch_layout,int src_rate,int src_samplle_fmt,char *buffer, int bufferSize,char* targetBuffer,int targetBufferSize);
 
