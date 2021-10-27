@@ -32,6 +32,7 @@ type ServerConfigJson struct {
 	Ssl               int      `json:"ssl"`
 	CertPemPath       string   `json:"certPemPath"`
 	KeyPemPath        string   `json:"keyPemPath"`
+	RcvAudioSavePath  string   `json:"rcvAudioSavePath"`
 	LogPath           string   `json:"logPath"`
 	LogLevel          string   `json:"logLevel"`
 	LogPeriod         int      `json:"logPeriod"`
@@ -88,4 +89,10 @@ func getMillisTimeFormat(t time.Time) string {
 	// Golang 시간 포멧 기준 2006-01-02 15:04:05, Mon Jan 2 15:04:05 -0700 MST 2006
 	timestamp := t.Format("20060102150405")
 	return timestamp + strconv.Itoa(t.Nanosecond()/1000000)
+}
+
+// YYYYMMDD-hhmmss
+func GetFileSaveFormattedTime() string {
+	t := time.Now()
+	return string(t.Format("20060102-150405"))
 }
