@@ -70,6 +70,9 @@ const (
 	// STT audio samplerate
 	STT_SAMPLERATE_ERR
 
+	// STT_RESAMPLE_ERR Resampler setting error voiceExtension.SetResampling() error
+	STT_RESAMPLE_ERR
+
 	// JSON_MARSHAL_ERR JSON encoding json.Marshal() error
 	JSON_MARSHAL_ERR
 
