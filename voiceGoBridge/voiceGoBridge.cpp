@@ -303,20 +303,20 @@ int decodeToPcmM4aFile(char *saveFilePath, char* targetBuffer,int targetBufferSi
     av_register_all();
     AVFrame *frame = av_frame_alloc();
     if (!frame) {
-        Log(inCtx, "decodeToPcmBuffer", "AVFrame Allocation Error");
+        Log(inCtx, "decodeToPcmM4aFile", "AVFrame Allocation Error");
         return -2;
     }
 
     AVFormatContext *formatContext = NULL;
     if (!(formatContext = avformat_alloc_context())) {
-        Log(inCtx, "decodeToPcmBuffer", "AVFormatContext Allocation Error");
+        Log(inCtx, "decodeToPcmM4aFile", "AVFormatContext Allocation Error");
         av_free(frame);
         return -3;
     }
 
     // Open AVContext
     if (avformat_open_input(&formatContext, saveFilePath, NULL, NULL) != 0) {
-        Log(inCtx, "decodeToPcmBuffer", "avformat open input Error");
+        Log(inCtx, "decodeToPcmM4aFile", "avformat open input Error");
         av_free(frame);
         if (formatContext!=NULL) av_freep(formatContext);
         return -6;
@@ -324,7 +324,7 @@ int decodeToPcmM4aFile(char *saveFilePath, char* targetBuffer,int targetBufferSi
 
     // Find Stream Info
     if (avformat_find_stream_info(formatContext, NULL) < 0) {
-        Log(inCtx, "decodeToPcmBuffer", "avformat find stream info Error");
+        Log(inCtx, "decodeToPcmM4aFile", "avformat find stream info Error");
         av_free(frame);
         if (formatContext!=NULL) av_freep(formatContext);
         return -7;
@@ -333,7 +333,7 @@ int decodeToPcmM4aFile(char *saveFilePath, char* targetBuffer,int targetBufferSi
     AVCodec *cdc = nullptr;
     int streamIndex = av_find_best_stream(formatContext, AVMEDIA_TYPE_AUDIO, -1, -1, &cdc, 0);
     if (streamIndex < 0) {
-        Log(inCtx, "decodeToPcmBuffer", "find audio stream info Error");
+        Log(inCtx, "decodeToPcmM4aFile", "find audio stream info Error");
         avformat_close_input(&formatContext);
         av_free(frame);
         if (formatContext!=NULL) av_freep(formatContext);
@@ -345,7 +345,7 @@ int decodeToPcmM4aFile(char *saveFilePath, char* targetBuffer,int targetBufferSi
 
     //Open Codec
     if (avcodec_open2(codecContext, codecContext->codec, NULL) != 0) {
-        Log(inCtx, "decodeToPcmBuffer", "avcodec open 2 Error");
+        Log(inCtx, "decodeToPcmM4aFile", "avcodec open 2 Error");
         avformat_close_input(&formatContext);
         av_free(frame);
         if (formatContext!=NULL) av_freep(formatContext);
@@ -366,7 +366,7 @@ int decodeToPcmM4aFile(char *saveFilePath, char* targetBuffer,int targetBufferSi
     );
 
     if (!swr_ctx) {
-        Log(inCtx, "decodeToPcmBuffer", "swr allocation Error");
+        Log(inCtx, "decodeToPcmM4aFile", "swr allocation Error");
         avformat_close_input(&formatContext);
         av_free(frame);
         if (formatContext!=NULL) av_freep(formatContext);
@@ -374,7 +374,7 @@ int decodeToPcmM4aFile(char *saveFilePath, char* targetBuffer,int targetBufferSi
     }
 
     if (swr_init(swr_ctx) < 0) {
-        Log(inCtx, "decodeToPcmBuffer", "swr init Error");
+        Log(inCtx, "decodeToPcmM4aFile", "swr init Error");
         av_freep(swr_ctx);
         avformat_close_input(&formatContext);
         av_free(frame);
@@ -441,7 +441,7 @@ int decodeToPcmM4aFile(char *saveFilePath, char* targetBuffer,int targetBufferSi
                     } else {
                         char errs[AV_ERROR_MAX_STRING_SIZE+20];
                         av_make_error_string(errs, AV_ERROR_MAX_STRING_SIZE, dst_bufsize);
-                        Log(inCtx, "decodeToPcmBuffer", errs);
+                        Log(inCtx, "decodeToPcmM4aFile", errs);
                         //loopFlag=false;
                     }
                 } else {
@@ -459,7 +459,7 @@ int decodeToPcmM4aFile(char *saveFilePath, char* targetBuffer,int targetBufferSi
     
 
     cleanUp:
-    Log(inCtx, "decodeToPcmBuffer", "CleanUp AV-Related Objs.");
+    Log(inCtx, "decodeToPcmM4aFile", "CleanUp AV-Related Objs.");
     swr_free(&swr_ctx);
     av_free(frame);
     avcodec_close(codecContext);
@@ -512,6 +512,9 @@ int resampleToPcmBuffer(int src_ch_layout,int src_rate,int src_sample_fmt,char *
         0,
         NULL
     );
+    if(!swr_ctx) {
+        Log(-1,"resampleToPcmBuffer","swr_alloc_set_opts error");
+    }
 
     // Initialize resampler
     if(swr_init(swr_ctx)<0){
