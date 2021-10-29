@@ -12,6 +12,15 @@ Golang voice api server
 | Voice Recognize(Speech To Text) | /v1/speech    | handleSpeech    |
 | Voice Synthesis(Text To Speech) | /v1/synthesis | handleSynthesis |
 
+## Prequisition
+Install Library
+```bash
+# apt-get install libresample-dev libavcodec-dev libavformat-dev libglib2.0-dev libswscale-dev libmp3lame-dev nasm yasm -y
+```
+
+Build FFmpeg
+- https://github.com/FFmpeg/FFmpeg
+
 ## CGO
 voiceExtension/voiceExtension.go
 ```golang
