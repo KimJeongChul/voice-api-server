@@ -74,6 +74,9 @@ $ ./voice-api-server
 ```
 
 ### Voice Recognize
+Audio Format
+ - wav, mp3, m4a(aac), Raw pcm, ogg, flac
+
 Request
 ```
 $ curl -F metadata="{\"encoding\":\"wav\",\"targetLanguage\":\"ko\", \"sttMode\":1, \"encodingOpt\":{\"channel\":1, \"sampleRate\": 16000, \"sampleFmt\": \"S16LE\"}}" -F media=@test40.wav https://[SERVICE_URL]/v1/speech
