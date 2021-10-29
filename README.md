@@ -11,3 +11,57 @@ Golang voice api server
 |---------------------------------|---------------|-----------------|
 | Voice Recognize(Speech To Text) | /v1/speech    | handleSpeech    |
 | Voice Synthesis(Text To Speech) | /v1/synthesis | handleSynthesis |
+
+## CGO
+voiceExtension/voiceExtension.go
+```golang
+//#cgo CFLAGS: -I[YOUR_PATH]/voice-api-server/voiceGoBridge
+//#include "[YOUR_PATH]/voice-api-server/voiceGoBridge/voiceGoBridge.h"
+```
+``` bash
+$ go tool cgo voiceExtension/voiceExtension.go 
+```
+
+## VoiceGoBridge
+Build
+```bash
+$ cd voiceGoBridge
+$ ./build.sh
+# cp libVoiceGoBridge.so /usr/lib/
+```
+
+## Server Config
+```json
+{
+    "listenPort": [SERVER_LISTEN_PORT],
+    "ssl":[SSL_OPTION],
+    "certPemPath":[CERT_PATH],
+    "keyPemPath": [KEY_PATH],
+    "rcvAudioSavePath": [RECEIVE_AUDIO_SAVE_PATH],
+    "pcmSavePath": [PCM_SAVE_PATH],
+    "speechResultPath": [SPEECH_RESULT_PATH],
+    "logPath": [LOG_PATH],
+    "logPeriod": [LOG_ROTATE_PERIOD_DAY]
+}
+
+example:
+{
+    "listenPort": "9096",
+    "ssl":1,
+    "certPemPath":"/data/voiceApiServer/cert.pem",
+    "keyPemPath":"/data/voiceApiServer/cert/key.pem",
+    "rcvAudioSavePath": "/data/voiceApiServer/audioReceived",
+    "pcmSavePath": "/data/voiceApiServer/pcmSaved",
+    "speechResultPath": "/data/voiceApiServer/speechResult",
+    "logPath": "/data/voiceApiServer/log",
+    "logLevel": "debug",
+    "logPeriod": 60
+}   
+```
+
+## Run
+```bash
+$ go build
+$ ./voice-api-server
+```
+
