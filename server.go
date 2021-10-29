@@ -28,11 +28,19 @@ func main() {
 		os.Exit(-1)
 	}
 
-	logger.LogI("main", common.UNDEFINED, config)
-
 	logPath := config.LogPath + "/%Y%m%d.debug"
 	rlogger, err := rotatelogs.New(
 		logPath,
+		rotatelogs.WithMaxAge(time.Hour*24*time.Duration(config.LogPeriod)),
+	)
+	if err != nil {
+		logger.LogE("main", "UNDEFINED", "Config File:"+*configFilePath+" Load Error.")
+		os.Exit(-1)
+	}
+
+	logSpeechResultPath := config.SpeechResultPath + "/%Y%m%d.debug"
+	rSpeechlogger, err := rotatelogs.New(
+		logSpeechResultPath,
 		rotatelogs.WithMaxAge(time.Hour*24*time.Duration(config.LogPeriod)),
 	)
 	if err != nil {
@@ -46,7 +54,7 @@ func main() {
 	logger.LogI("main", common.UNDEFINED, "Extra:logLevel=", config.LogLevel, ",ssl=", config.Ssl, ",CertPemPath=", config.CertPemPath, ",KeyPemPath="+config.KeyPemPath)
 
 	apiServer := api.ApiServer{}
-	apiServer.Initialize(&config, rlogger)
+	apiServer.Initialize(&config, rlogger, rSpeechlogger)
 
 
 	//Listen
