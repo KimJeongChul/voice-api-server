@@ -73,3 +73,25 @@ $ go build
 $ ./voice-api-server
 ```
 
+### Voice Recognize
+Request
+```
+$ curl -F metadata="{\"encoding\":\"wav\",\"targetLanguage\":\"ko\", \"sttMode\":1, \"encodingOpt\":{\"channel\":1, \"sampleRate\": 16000, \"sampleFmt\": \"S16LE\"}}" -F media=@test40.wav https://dev.gigagenie.ai:55173/v1/speech
+```
+
+Response
+```bash
+--2c941089d64863ff88d066d3a9ff37ad8cf468eca4fe81abe4223e2aca1b
+Content-Disposition: form-data; name="voiceResult"
+
+{"resultType":"start"}
+--2c941089d64863ff88d066d3a9ff37ad8cf468eca4fe81abe4223e2aca1b
+Content-Disposition: form-data; name="voiceResult"
+
+{"resultType":"full","speechResult":{"text":"RECOGNIZE FROM YOUR STT CORE ENGIN SERVER","startTime":0.1,"endTime":40}}
+--2c941089d64863ff88d066d3a9ff37ad8cf468eca4fe81abe4223e2aca1b
+Content-Disposition: form-data; name="voiceResult"
+
+{"resultType":"end","speechInfo":{"reqFileSize":1280078,"transCodec":"wav","convFileSize":1280078,"speechInputTime":40}}
+--2c941089d64863ff88d066d3a9ff37ad8cf468eca4fe81abe4223e2aca1b--
+```
