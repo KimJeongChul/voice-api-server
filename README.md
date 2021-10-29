@@ -78,11 +78,49 @@ Audio Format
  - wav, mp3, m4a(aac), Raw pcm, ogg, flac
 
 Request
+ - URL: [SERVICE-URL]/v1/speech
+ - Request Body MultipPart 1
+    - Content-Disposition: form-data; name="metadata"
+    - Content-Type: application/json, charset=utf-8
+    - encoding(String): Audio encoding type
+        - raw: pcm
+        - wav
+        - mp3
+        - ogg
+        - aac
+        - flac
+    - targetLanguage(String): language model
+    - encodingOpt(JSON): If encoding is raw
+        - channel(Number): 1(Mono), 2(Stereo) 
+        - sampleRate(Number): 16000, 44100, 48000
+        - sampleFmt(String): S16LE(Signed 16bit Little Endian), F32LE(Float 32bit Little Endian)
+- Request Body Multiplart 2
+    - Content-Disposition: form-data; name="media"
+    - Content-Type: application/octet-stream
+    - Audio binary data
 ```
-$ curl -F metadata="{\"encoding\":\"wav\",\"targetLanguage\":\"ko\", \"sttMode\":1, \"encodingOpt\":{\"channel\":1, \"sampleRate\": 16000, \"sampleFmt\": \"S16LE\"}}" -F media=@test40.wav https://[SERVICE_URL]/v1/speech
+$ curl -F metadata="{\"encoding\":\"raw\",\"targetLanguage\":\"ko\", \"encodingOpt\":{\"channel\":1, \"sampleRate\": 16000, \"sampleFmt\": \"S16LE\"}}" -F media=@test40.pcm https://[SERVICE_URL]/v1/speech
 ```
 
 Response
+ - Response Body 
+    - Send multipart-form data
+    - Content-Type: application/json, charset=utf-8
+    - resultType(String): Speech Recognize Type, Value Description
+        - start: Start Speech Recognize
+        - end: End Speech Recognize
+        - text: Result text
+        - err: Error
+    - speechResult(JSON): If resultType is text
+        - text(String): Result Text
+        - startTime(Number): Begin Point Detection time
+        - endTime(Number): End Point Detection time
+    - speechInfo(JSON): If resultType is end
+        - reqFileSize(Number): Request Audio File Size
+        - transCodec(String): Audio Codec
+        - convFileSize(Number): Convert pcm size
+        - speechInputTime(Number): Input audio play time (seconds)
+
 ```bash
 --2c941089d64863ff88d066d3a9ff37ad8cf468eca4fe81abe4223e2aca1b
 Content-Disposition: form-data; name="voiceResult"
