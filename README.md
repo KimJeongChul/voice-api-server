@@ -136,3 +136,23 @@ Content-Disposition: form-data; name="voiceResult"
 {"resultType":"end","speechInfo":{"reqFileSize":1280078,"transCodec":"wav","convFileSize":1280078,"speechInputTime":40}}
 --2c941089d64863ff88d066d3a9ff37ad8cf468eca4fe81abe4223e2aca1b--
 ```
+
+### Speech Result File
+```json
+{"transactionID":"3944f58b-5fea-5acb-8777-28bac7adea4e","eventTime":"20211029131653465","sttStatus":"completed","sttResults":[{"text":"RECOGNIZE FROM YOUR STT CORE ENGIN SERVER","startTime":0.1,"endTime":40}],"sttInfo":{"reqFileSize":266472,"transCodec":"mp3","convFileSize":1281118,"speechInputTime":40}}
+{"transactionID":"6dae0297-4441-523a-81f2-d5a9849eac3c","eventTime":"20211029131714123","sttStatus":"completed","sttResults":[{"text":"RECOGNIZE FROM YOUR STT CORE ENGIN SERVER","startTime":0.1,"endTime":40}],"sttInfo":{"reqFileSize":1280000,"transCodec":"pcm","convFileSize":1280000,"speechInputTime":40}}
+{"transactionID":"65a40706-6d6d-5db3-9860-cdf1e930d797","eventTime":"20211029131752332","sttStatus":"completed","sttResults":[{"text":"RECOGNIZE FROM YOUR STT CORE ENGIN SERVER","startTime":0.1,"endTime":40}],"sttInfo":{"reqFileSize":374335,"transCodec":"aac","convFileSize":1280000,"speechInputTime":40}}
+{"transactionID":"0a1dd0b1-704b-5d17-8478-1d62944057ac","eventTime":"20211029140923523","sttStatus":"completed","sttResults":[{"text":"RECOGNIZE FROM YOUR STT CORE ENGIN SERVER","startTime":0.1,"endTime":40}],"sttInfo":{"reqFileSize":1280078,"transCodec":"wav","convFileSize":1280078,"speechInputTime":40}}
+```
+ 
+### Log File
+```bash
+2021/10/29 13:16:48 [I] ( UNDEFINED ) < main > Listening Config:HttpPort=9096
+2021/10/29 13:16:48 [I] ( UNDEFINED ) < main > Extra:logLevel=debug,ssl=1,CertPemPath=./cert/cert.pem,KeyPemPath=./cert/key.pem
+2021/10/29 13:16:48 [I] ( api ) < Listen > HTTPs Listening:Cert=./cert/cert.pem,keyPem=./cert/key.pem
+2021/10/29 13:16:53 [I] ( 3944f58b-5fea-5acb-8777-28bac7adea4e ) < handleSpeech > req body: {"encoding": "mp3", "targetLanguage": "ko"}
+2021/10/29 13:16:53 [I] ( 3944f58b-5fea-5acb-8777-28bac7adea4e ) < handleSpeech > Read Meta:Encoding=mp3,Channel=0,sampleRate=0,targetLanguage=ko
+2021/10/29 13:16:53 [I] ( 3944f58b-5fea-5acb-8777-28bac7adea4e ) < handleSpeech > Read Audio:Length=266472
+2021/10/29 13:16:53 [I] ( 3944f58b-5fea-5acb-8777-28bac7adea4e ) < handleSpeech > encoding=mp3
+...
+```
