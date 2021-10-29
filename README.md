@@ -1,6 +1,6 @@
 # voice-api-server
 
-Golang voice api server 
+Example Golang Voice API server 
  - Preprocessing audio converting(encoding and decoding) using FFmpeg 
  - Serving Speech(Speech To Text) and Synthesis(Text To Speech) service
  - Supported Rest API
