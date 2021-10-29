@@ -1,7 +1,7 @@
 package voiceExtension
 
 //#cgo CFLAGS: -I/mnt/dev/gopath/src/voice-api-server/voiceGoBridge
-//#cgo LDFLAGS: -L/usr/lib/x86_64-linux-gnu -lVoiceGoBridge -lswresample -lavformat -lavcodec -lavutil  -lglib-2.0
+//#cgo LDFLAGS: -L/usr/lib/x86_64-linux-gnu -lVoiceGoBridge -lswresample -lavformat -lavcodec -lavutil -lglib-2.0
 //#include <stdlib.h>
 //#include "/mnt/dev/gopath/src/voice-api-server/voiceGoBridge/voiceGoBridge.h"
 import "C"
