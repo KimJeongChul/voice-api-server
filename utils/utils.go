@@ -33,6 +33,8 @@ type ServerConfigJson struct {
 	CertPemPath       string   `json:"certPemPath"`
 	KeyPemPath        string   `json:"keyPemPath"`
 	RcvAudioSavePath  string   `json:"rcvAudioSavePath"`
+	PcmSavePath       string   `json:"pcmSavePath"`
+	SpeechResultPath  string   `json:"speechResultPath"`
 	LogPath           string   `json:"logPath"`
 	LogLevel          string   `json:"logLevel"`
 	LogPeriod         int      `json:"logPeriod"`
@@ -53,6 +55,17 @@ func LoadConfigJson(configFileName *string) (ServerConfigJson, error) {
 	return parsedResult, err
 }
 
+// InitializeDirctory
+func InitializeDirctory(serverConfig *ServerConfigJson) {
+	if _, err := os.Stat(serverConfig.RcvAudioSavePath); os.IsNotExist(err) {
+		os.Mkdir(serverConfig.RcvAudioSavePath, 0700)
+	}	
+
+	if _, err := os.Stat(serverConfig.PcmSavePath); os.IsNotExist(err) {
+		os.Mkdir(serverConfig.PcmSavePath, 0700)
+	}	
+}
+
 func EnableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 	(*w).Header().Set("Access-Control-Allow-Credentials", "true")
@@ -63,7 +76,7 @@ func EnableCors(w *http.ResponseWriter) {
 // GenerateUnixTrxID Generate UUID v5
 func GenerateUnixTrxID() (string, error) {
 	uuidCnt = (uuidCnt + 1) % 10000
-	uuidString := getMillisTimeFormat(time.Now()) + ":" + localMacAddr + ":" + strconv.Itoa(uuidCnt)
+	uuidString := GetMillisTimeFormat(time.Now()) + ":" + localMacAddr + ":" + strconv.Itoa(uuidCnt)
 	transactionId := uuid.NewV5(uuid.NamespaceDNS, uuidString)
 	return transactionId.String(), nil
 }
@@ -85,7 +98,7 @@ func getMacAddress() ([]string, error) {
 }
 
 // YYYYMMDDhhmmsslll
-func getMillisTimeFormat(t time.Time) string {
+func GetMillisTimeFormat(t time.Time) string {
 	// Golang 시간 포멧 기준 2006-01-02 15:04:05, Mon Jan 2 15:04:05 -0700 MST 2006
 	timestamp := t.Format("20060102150405")
 	return timestamp + strconv.Itoa(t.Nanosecond()/1000000)
