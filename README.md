@@ -4,6 +4,8 @@ Golang voice api server
  - Preprocessing audio converting(encoding and decoding) using FFmpeg 
  - Serving Speech(Speech To Text) and Synthesis(Text To Speech) service
  - Supported Rest API
+
+##
 | API                             | PATH          | Method          |
 |---------------------------------|---------------|-----------------|
 | Voice Recognize(Speech To Text) | /v1/speech    | handleSpeech    |
