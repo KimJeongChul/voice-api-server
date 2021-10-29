@@ -15,11 +15,16 @@ type ApiServer struct {
 	serverConfig *utils.ServerConfigJson
 	router       *mux.Router
 	logger       *logger.Logger
+	speechLogger *logger.Logger
 }
 
-func (as *ApiServer) Initialize(configJson *utils.ServerConfigJson, rlogger *rotatelogs.RotateLogs) int {
+func (as *ApiServer) Initialize(configJson *utils.ServerConfigJson, rlogger *rotatelogs.RotateLogs,  rSpeechlogger *rotatelogs.RotateLogs) int {
 	as.logger = logger.NewLogger(rlogger)
+	as.speechLogger = logger.NewLogger(rSpeechlogger)
 	as.serverConfig = configJson
+
+	// Initialize Directory
+	utils.InitializeDirctory(configJson)
 
 	// Router
 	as.router = mux.NewRouter()
